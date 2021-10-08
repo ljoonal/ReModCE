@@ -1,38 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4EA50331-5D4E-47D3-BDA5-260600CFF84C}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ReModCE</RootNamespace>
-    <AssemblyName>ReModCE</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <BuildProjectReferences>false</BuildProjectReferences>
     <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <CopyLocal>false</CopyLocal>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
+    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
+  </PropertyGroup> 
+
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>false</Private>
@@ -192,57 +171,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\AvatarFavoritesComponent.cs" />
-    <Compile Include="Components\CalibrationSavingComponent.cs" />
-    <Compile Include="Components\ComfyQuickMenuComponent.cs" />
-    <Compile Include="Components\ButtonAdjustmentsComponent.cs" />
-    <Compile Include="Components\DynamicBonesComponent.cs" />
-    <Compile Include="Components\FlyComponent.cs" />
-    <Compile Include="Components\HighlightsComponent.cs" />
-    <Compile Include="Components\InfoLogsComponent.cs" />
-    <Compile Include="Components\PopupExComponent.cs" />
-    <Compile Include="Components\AvatarHistoryComponent.cs" />
-    <Compile Include="Components\ThirdPersonComponent.cs" />
-    <Compile Include="Components\WireframeComponent.cs" />
-    <Compile Include="Core\ApiError.cs" />
-    <Compile Include="Core\BinaryGZipSerializer.cs" />
-    <Compile Include="Core\DynamicContractResolver.cs" />
-    <Compile Include="Core\EnableDisableListener.cs" />
-    <Compile Include="Core\ModComponent.cs" />
-    <Compile Include="Core\ConfigValue.cs" />
-    <Compile Include="Components\IngameLogComponent.cs" />
-    <Compile Include="Core\ReAvatar.cs" />
-    <Compile Include="Core\TaskExtensions.cs" />
-    <Compile Include="Core\ColorExtensions.cs" />
-    <Compile Include="Core\XrefUtils.cs" />
-    <Compile Include="Managers\RiskyFunctionsManager.cs" />
-    <Compile Include="ReMod.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\ReAvatarList.cs" />
-    <Compile Include="UI\ReScrollView.cs" />
-    <Compile Include="UI\ReUiButton.cs" />
-    <Compile Include="UI\ReUiText.cs" />
-    <Compile Include="UI\UIElement.cs" />
-    <Compile Include="UI\ReQuickButton.cs" />
-    <Compile Include="UI\ReQuickMenu.cs" />
-    <Compile Include="UI\ReQuickToggle.cs" />
-    <Compile Include="Managers\UiManager.cs" />
-    <Compile Include="VRChat\ExtendedCursor.cs" />
-    <Compile Include="VRChat\ExtendedQuickMenu.cs" />
-    <Compile Include="VRChat\PlayerExtensions.cs" />
-    <Compile Include="VRChat\PopupManagerExtensions.cs" />
-    <Compile Include="VRChat\UnityExtensions.cs" />
-    <Compile Include="VRChat\VrcUiExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ReModCE.Loader\ReModCE.Loader.csproj">
       <Project>{6e5e0e59-73d9-4d74-b734-d040d26710c4}</Project>
       <Name>ReModCE.Loader</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y $(TargetFileName) S:\Games\steamapps\common\VRChat\$(TargetFileName)
-exit /b 0</PostBuildEvent>
-  </PropertyGroup>
 </Project>
