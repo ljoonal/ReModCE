@@ -1,23 +1,23 @@
-﻿using MelonLoader;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
+using MelonLoader;
 
 namespace ReModCE.Loader
 {
     public static class BuildInfo
     {
-        public const string Name = "ReModCE";
-        public const string Author = "Requi, FenrixTheFox";
+		public const string Name = "ReModLJ";
+		public const string Author = "Requi, FenrixTheFox, LJ";
         public const string Company = null;
         public const string Version = "1.0.0.0";
-        public const string DownloadLink = "https://github.com/RequiDev/ReModCE/releases/latest/";
+		public const string DownloadLink = "";
     }
 
     internal static class GitHubInfo
@@ -44,11 +44,9 @@ namespace ReModCE.Loader
         public override void OnApplicationStart()
         {
             var category = MelonPreferences.CreateCategory("ReModCE");
-            var paranoidMode = category.CreateEntry("ParanoidMode", false, "Paranoid Mode",
+			var paranoidMode = category.CreateEntry("ParanoidMode", true, "Paranoid Mode",
                 "If enabled ReModCE will not automatically download the latest version from GitHub. Manual update will be required.",
                 true);
-
-            using var sha256 = SHA256.Create();
 
             byte[] bytes = null;
             if (File.Exists("ReModCE.dll"))
@@ -56,46 +54,11 @@ namespace ReModCE.Loader
                 bytes = File.ReadAllBytes("ReModCE.dll");
             }
 
-            using var wc = new WebClient
-            {
-                Headers =
-                {
-                    ["User-Agent"] =
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0"
-                }
-            };
-            var latestBytes = wc.DownloadData($"https://github.com/{GitHubInfo.Author}/{GitHubInfo.Repository}/releases/{GitHubInfo.Version}/download/ReModCE.dll");
-            if (bytes == null)
-            {
-                if (latestBytes == null)
-                {
-                    MelonLogger.Error($"No local file exists and unable to download latest version from GitHub. ReModCE will not load!");
-                    return;
-                }
-                MelonLogger.Warning($"Couldn't find ReModCE.dll on disk. Downloading latest version from GitHub.");
-                bytes = latestBytes;
-                File.WriteAllBytes("ReModCE.dll", bytes);
-            }
-
-#if !DEBUG
-            var latestHash = ComputeHash(sha256, latestBytes);
-            var currentHash = ComputeHash(sha256, bytes);
-
-            if (latestHash != currentHash)
-            {
-                if (paranoidMode.Value)
-                {
-                    MelonLogger.Msg(ConsoleColor.Cyan,
-                        $"There is a new version of ReModCE available. You can either delete the \"ReModCE.dll\" from your VRChat directory or go to https://github.com/{GitHubInfo.Author}/{GitHubInfo.Repository}/releases/latest/ and download the latest version.");
-                }
-                else
-                {
-                    bytes = latestBytes;
-                    File.WriteAllBytes("ReModCE.dll", bytes);
-                    MelonLogger.Msg(ConsoleColor.Green, $"Updated ReModCE to latest version.");
-                }
-            }
-#endif
+			if (bytes == null)
+			{
+				MelonLogger.Error($"No local file exists for ReModLJ, unable to load!");
+				return;
+			}
 
             Assembly assembly;
             try
