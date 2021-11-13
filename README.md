@@ -14,18 +14,15 @@ This is essentially a public version of my invite-only VRChat mod. It's a cut-do
 If you want a feature or have a bug report, head over to the issues page and create an issue for it!
 
 # Installation & Usage
-Grab the latest loader from [here](https://api.vrcmg.com/v0/mods/246/ReModCE.Loader.dll) and put it in your Mods directory.  
+Build the loader dll and put it in your Mods directory.  
 
-By default the loader will attempt to load the mod from your VRChat directory using the filename 'ReModCE.dll'. If it doesn't exist, it will attempt to download the latest Version from GitHub.  
-If there is a newer version available on GitHub it will automatically update to that version.  
+By default the loader will attempt to load the mod from your VRChat directory using the filename 'ReModCE.dll'.
 
 The loader has been stripped of automated updating features completely.
 No builds will be provided, build from source.
 If you are trusting enough for random .dll files, just use the original version.
 
 # Features
-* Unlimited Avatar Favorites with VRC+ (Saved in the Cloud and protected by a PIN!)
-* Search public avatars by name, description, author name and author id
 * Recently Used Avatars/Avatar History (Remembers up to 25 avatars)
 * Global Dynamic Bones with advanced settings so you have full control over where colliders go
 * Fly/Noclip (Not usable in Game/Club worlds)
