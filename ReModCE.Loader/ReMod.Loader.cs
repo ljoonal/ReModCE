@@ -41,6 +41,12 @@ namespace ReModCE.Loader
         {
             var category = MelonPreferences.CreateCategory("ReModCE");
 
+            if (File.Exists("ReModCE.dll"))
+            {
+                MelonLogger.Error($"No local file exists for ReMod.Core, unable to load!");
+                return;
+            }
+
             byte[] bytes = null;
             if (File.Exists("ReModCE.dll"))
             {
@@ -49,7 +55,7 @@ namespace ReModCE.Loader
 
             if (bytes == null)
             {
-                MelonLogger.Error($"No local file exists for ReModLJ, unable to load!");
+                MelonLogger.Error($"Failed to read file for ReModLJ, unable to load!");
                 return;
             }
 
