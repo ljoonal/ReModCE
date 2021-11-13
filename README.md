@@ -9,7 +9,7 @@ A slight fork of: ReMod Community Edition - A All-in-One VRChat mod to suit all 
 Mostly just removes features for more paranoid users and makes building on linux possible.
 
 # Description
-This is essentially a public version of my invite-only VRChat mod. It's a cut-down version with no connection to the ReMod server and with it's security measures removed.  
+This is essentially a public version of RequiDev's invite-only VRChat mod. It's a cut-down version with no connection to the ReMod server and with it's security measures removed.  
 
 If you want a feature or have a bug report, head over to the issues page and create an issue for it!
 
