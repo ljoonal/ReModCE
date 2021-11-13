@@ -36,9 +36,7 @@ namespace ReModCE.Loader
         private Action _onPreferencesSaved;
 
         private Action<int, string> _onSceneWasLoaded;
-        private Action<int, string> _onSceneWasInitialized;
-
-        private MelonPreferences_Entry<bool> _paranoidMode;
+		private Action<int, string> _onSceneWasInitialized;
         public override void OnApplicationStart()
         {
             var category = MelonPreferences.CreateCategory("ReModCE");
