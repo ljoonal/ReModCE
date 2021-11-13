@@ -11,13 +11,13 @@ If you want a feature or have a bug report, head over to the issues page and cre
 
 ## Installation & Usage
 
-Build the loader dll and put it in your Mods directory.  
-
-By default the loader will attempt to load the mod from your VRChat directory using the filename 'ReModCE.dll'.
+Build the required dlls and put them in your Mods directory.  
 
 The loader has been stripped of automated updating features completely.
 No builds will be provided, build from source.
 If you are trusting enough for random .dll files, just use the original version.
+
+The loader is still required though, since this fork aims to stay close to the upstream to make merging changes easier.
 
 ## Features
 
