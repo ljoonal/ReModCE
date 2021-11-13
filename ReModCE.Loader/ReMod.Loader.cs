@@ -53,6 +53,17 @@ namespace ReModCE.Loader
                 return;
             }
 
+            Assembly assembly;
+            try
+            {
+                assembly = Assembly.Load(bytes);
+            }
+            catch (BadImageFormatException e)
+            {
+                MelonLogger.Error($"Couldn't load specified image: {e}");
+                return;
+            }
+
             if (assembly == null)
                 return;
 
