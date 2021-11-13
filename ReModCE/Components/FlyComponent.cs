@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
+using ReMod.Core.VRChat;
 using ReModCE.Core;
 using ReModCE.Managers;
-using ReModCE.UI;
-using ReModCE.VRChat;
 using UnhollowerRuntimeLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using VRC.Animation;
 using VRC.SDK3.Components;
+using VRC.UI.Elements;
 using VRCSDK2;
 using VRC_AvatarPedestal = VRC.SDKBase.VRC_AvatarPedestal;
 using VRC_Pickup = VRC.SDKBase.VRC_Pickup;
@@ -25,22 +27,18 @@ namespace ReModCE.Components
         private bool _noclipEnabled;
         private readonly List<int> _disabledColliders = new List<int>();
         private bool _flyEnabled;
-        private ConfigValue<bool> SuppressFlyAnimation;
         private ConfigValue<float> FlySpeed;
         private Vector3 _originalGravity;
         private ConfigValue<bool> EnableFlyHotkey;
+        
+        private ReMenuButton _flySpeedButton;
 
-        private ReQuickToggle _suppressFlyAnimationToggle;
-        private ReQuickButton _flySpeedButton;
-
-        private ReQuickToggle _flyToggle;
-        private ReQuickToggle _noclipToggle;
-        private ReQuickToggle _hotkeyToggle;
+        private ReMenuToggle _flyToggle;
+        private ReMenuToggle _noclipToggle;
+        private ReMenuToggle _hotkeyToggle;
 
         public FlyComponent()
         {
-            SuppressFlyAnimation = new ConfigValue<bool>(nameof(SuppressFlyAnimation), true);
-            SuppressFlyAnimation.OnValueChanged += () => _suppressFlyAnimationToggle.Toggle(SuppressFlyAnimation);
             FlySpeed = new ConfigValue<float>(nameof(FlySpeed), 4);
             FlySpeed.OnValueChanged += () => _flySpeedButton.Text = $"Fly Speed: {FlySpeed}";
             EnableFlyHotkey = new ConfigValue<bool>(nameof(EnableFlyHotkey), true);
@@ -48,8 +46,15 @@ namespace ReModCE.Components
 
             RiskyFunctionsManager.Instance.OnRiskyFunctionsChanged += allowed =>
             {
-                _flyToggle.Interactable = allowed;
-                _noclipToggle.Interactable = allowed;
+                if (_flyToggle != null)
+                {
+                    _flyToggle.Interactable = allowed;
+                }
+                if (_noclipToggle != null)
+                {
+                    _noclipToggle.Interactable = allowed;
+                }
+
                 if (!allowed)
                 {
                     ToggleNoclip(false);
@@ -59,17 +64,13 @@ namespace ReModCE.Components
 
         public override void OnUiManagerInit(UiManager uiManager)
         {
-            var movementMenu = uiManager.MainMenu.GetSubMenu("Movement");
-            var hotkeyMenu = uiManager.MainMenu.GetSubMenu("Hotkeys");
+            var movementMenu = uiManager.MainMenu.GetMenuPage("Movement");
+            var hotkeyMenu = uiManager.MainMenu.GetMenuPage("Hotkeys");
 
             _flyToggle = movementMenu.AddToggle("Fly", "Enable/Disable Fly", ToggleFly, _flyEnabled);
             _noclipToggle = movementMenu.AddToggle("Noclip", "Enable/Disable Noclip", ToggleNoclip, _noclipEnabled);
-            _hotkeyToggle = hotkeyMenu.AddToggle("Enable Fly Hotkey", "Enable/Disable fly hotkey",
+            _hotkeyToggle = hotkeyMenu.AddToggle("Fly Hotkey", "Enable/Disable fly hotkey",
                 EnableFlyHotkey.SetValue, EnableFlyHotkey);
-
-            _suppressFlyAnimationToggle = movementMenu.AddToggle("Suppress Fly Animations",
-                "Stay still in the air when flying instead of having dangling legs.",
-                SuppressFlyAnimation.SetValue, SuppressFlyAnimation);
 
             _flySpeedButton = movementMenu.AddButton($"Fly Speed: {FlySpeed}", "Adjust your speed when flying", () =>
             {
@@ -84,7 +85,7 @@ namespace ReModCE.Components
 
                         FlySpeed.SetValue(flySpeed);
                     }, null);
-            });
+            }, ResourceManager.Instance.GetSprite("speed"));
         }
 
         private readonly List<Il2CppSystem.Type> _blacklistedComponents = new List<Il2CppSystem.Type>
@@ -131,7 +132,7 @@ namespace ReModCE.Components
         private void ToggleFly(bool value)
         {
             _flyEnabled = value;
-            _flyToggle.Toggle(value);
+            _flyToggle?.Toggle(value);
 
             if (_flyEnabled)
             {
@@ -154,7 +155,7 @@ namespace ReModCE.Components
         private void ToggleNoclip(bool value)
         {
             _noclipEnabled = value;
-            _noclipToggle.Toggle(value);
+            _noclipToggle?.Toggle(value);
             if (_noclipEnabled && !_flyEnabled)
             {
                 ToggleFly(true);
@@ -227,11 +228,8 @@ namespace ReModCE.Components
                     playerTransform.position += new Vector3(0f, Time.deltaTime * speed, 0f);
                 }
             }
-
-            if (SuppressFlyAnimation)
-            {
-                _motionState?.Reset();
-            }
+            
+            _motionState?.Reset();
         }
     }
 }

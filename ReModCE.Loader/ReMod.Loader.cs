@@ -6,18 +6,18 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
-using MelonLoader;
+using VRC.UI.Core;
+using Object = UnityEngine.Object;
 
 namespace ReModCE.Loader
 {
     public static class BuildInfo
     {
-		public const string Name = "ReModLJ";
-		public const string Author = "Requi, FenrixTheFox, LJ";
+        public const string Name = "ReModLJ";
+        public const string Author = "Requi, FenrixTheFox, LJ";
         public const string Company = null;
-        public const string Version = "1.0.0.0";
-		public const string DownloadLink = "";
+        public const string Version = "1.0.0.1";
+        public const string DownloadLink = "https://github.com/RequiDev/ReModCE/releases/latest/";
     }
 
     internal static class GitHubInfo
@@ -31,6 +31,7 @@ namespace ReModCE.Loader
     {
         private Action _onApplicationStart;
         private Action _onUiManagerInit;
+        private Action _onUiManagerInitEarly;
         private Action _onFixedUpdate;
         private Action _onUpdate;
         private Action _onGUI;
@@ -41,10 +42,12 @@ namespace ReModCE.Loader
 
         private Action<int, string> _onSceneWasLoaded;
         private Action<int, string> _onSceneWasInitialized;
+
+        private MelonPreferences_Entry<bool> _paranoidMode;
         public override void OnApplicationStart()
         {
             var category = MelonPreferences.CreateCategory("ReModCE");
-			var paranoidMode = category.CreateEntry("ParanoidMode", true, "Paranoid Mode",
+            var paranoidMode = category.CreateEntry("ParanoidMode", true, "Paranoid Mode",
                 "If enabled ReModCE will not automatically download the latest version from GitHub. Manual update will be required.",
                 true);
 
@@ -54,22 +57,14 @@ namespace ReModCE.Loader
                 bytes = File.ReadAllBytes("ReModCE.dll");
             }
 
-			if (bytes == null)
-			{
-				MelonLogger.Error($"No local file exists for ReModLJ, unable to load!");
-				return;
-			}
-
-            Assembly assembly;
-            try
+            if (bytes == null)
             {
-                assembly = Assembly.Load(bytes);
-            }
-            catch (BadImageFormatException e)
-            {
-                MelonLogger.Error($"Couldn't load specified image: {e}");
+                MelonLogger.Error($"No local file exists for ReModLJ, unable to load!");
                 return;
             }
+
+            if (assembly == null)
+                return;
 
             IEnumerable<Type> types;
             try
@@ -112,6 +107,9 @@ namespace ReModCE.Loader
                     case nameof(OnUiManagerInit) when parameters.Length == 0:
                         _onUiManagerInit = (Action)Delegate.CreateDelegate(typeof(Action), m);
                         break;
+                    case nameof(OnUiManagerInitEarly) when parameters.Length == 0:
+                        _onUiManagerInitEarly = (Action)Delegate.CreateDelegate(typeof(Action), m);
+                        break;
                     case nameof(OnGUI) when parameters.Length == 0:
                         _onGUI = (Action)Delegate.CreateDelegate(typeof(Action), m);
                         break;
@@ -137,6 +135,11 @@ namespace ReModCE.Loader
         public void OnUiManagerInit()
         {
             _onUiManagerInit();
+        }
+
+        public void OnUiManagerInitEarly()
+        {
+            _onUiManagerInitEarly();
         }
 
         public override void OnFixedUpdate()
@@ -187,9 +190,88 @@ namespace ReModCE.Loader
         private IEnumerator WaitForUiManager()
         {
             while (VRCUiManager.field_Private_Static_VRCUiManager_0 == null) yield return null;
-            while (QuickMenu.prop_QuickMenu_0 == null) yield return null;
+            OnUiManagerInitEarly();
+
+            while (UIManager.field_Private_Static_UIManager_0 == null) yield return null;
+            while (Object.FindObjectOfType<VRC.UI.Elements.QuickMenu>() == null) yield return null;
 
             OnUiManagerInit();
+        }
+
+        private void DownloadFromGitHub(string fileName, out Assembly loadedAssembly)
+        {
+            using var sha256 = SHA256.Create();
+
+            byte[] bytes = null;
+            if (File.Exists($"{fileName}.dll"))
+            {
+                bytes = File.ReadAllBytes($"{fileName}.dll");
+            }
+
+            using var wc = new WebClient
+            {
+                Headers =
+                {
+                    ["User-Agent"] =
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0"
+                }
+            };
+
+            byte[] latestBytes = null;
+            try
+            {
+                latestBytes = wc.DownloadData($"https://github.com/{GitHubInfo.Author}/{GitHubInfo.Repository}/releases/{GitHubInfo.Version}/download/{fileName}.dll");
+            }
+            catch (WebException e)
+            {
+                MelonLogger.Error($"Unable to download latest version of ReModCE: {e}");
+            }
+
+            if (bytes == null)
+            {
+                if (latestBytes == null)
+                {
+                    MelonLogger.Error($"No local file exists and unable to download latest version from GitHub. {fileName} will not load!");
+                    loadedAssembly = null;
+                    return;
+                }
+                MelonLogger.Warning($"Couldn't find {fileName}.dll on disk. Saving latest version from GitHub.");
+                bytes = latestBytes;
+                File.WriteAllBytes($"{fileName}.dll", bytes);
+            }
+
+#if !DEBUG
+            if (latestBytes != null)
+            {
+                var latestHash = ComputeHash(sha256, latestBytes);
+                var currentHash = ComputeHash(sha256, bytes);
+
+                if (latestHash != currentHash)
+                {
+                    if (_paranoidMode.Value)
+                    {
+                        MelonLogger.Msg(ConsoleColor.Cyan,
+                            $"There is a new version of ReModCE available. You can either delete the \"{fileName}.dll\" from your VRChat directory or go to https://github.com/{GitHubInfo.Author}/{GitHubInfo.Repository}/releases/latest/ and download the latest version.");
+                    }
+                    else
+                    {
+                        bytes = latestBytes;
+                        File.WriteAllBytes($"{fileName}.dll", bytes);
+                        MelonLogger.Msg(ConsoleColor.Green, $"Updated {fileName} to latest version.");
+                    }
+                }
+            }
+#endif
+
+            try
+            {
+                loadedAssembly = Assembly.Load(bytes);
+            }
+            catch (BadImageFormatException e)
+            {
+                MelonLogger.Error($"Couldn't load specified image: {e}");
+                loadedAssembly = null;
+            }
         }
 
         private static string ComputeHash(HashAlgorithm sha256, byte[] data)

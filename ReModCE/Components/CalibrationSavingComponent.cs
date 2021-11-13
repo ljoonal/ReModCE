@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
 using MelonLoader;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
 using ReModCE.Core;
 using ReModCE.Loader;
 using ReModCE.Managers;
-using ReModCE.UI;
 using UnityEngine;
 
 namespace ReModCE.Components
@@ -26,7 +26,7 @@ namespace ReModCE.Components
 
         private static Dictionary<string, FbtCalibration> _savedCalibrations;
         private static ConfigValue<bool> CalibrationSaverEnabled;
-        private ReQuickToggle _enableToggle;
+        private ReMenuToggle _enableToggle;
 
         public CalibrationSavingComponent()
         {
@@ -75,7 +75,7 @@ namespace ReModCE.Components
                             ReModCE.Harmony.Patch(methodInfo, GetLocalPatch(nameof(IsCalibratedForAvatar)));
                             break;
                         case 3 when methodInfo.GetParameters().First().ParameterType == typeof(Animator) && methodInfo.ReturnType == typeof(void) && methodInfo.GetRuntimeBaseDefinition() == methodInfo:
-                            ReModCE.Harmony.Patch(methodInfo, GetLocalPatch(nameof(PerformCalibration)));
+                            ReModCE.Harmony.Patch(methodInfo, postfix: GetLocalPatch(nameof(PerformCalibration)));
                             break;
                     }
                 }
@@ -88,14 +88,14 @@ namespace ReModCE.Components
 
         public override void OnUiManagerInit(UiManager uiManager)
         {
-            var menu = uiManager.MainMenu.AddSubMenu("FBT", "Access full body tracking related settings");
+            var menu = uiManager.MainMenu.AddMenuPage("FBT", "Access full body tracking related settings", ResourceManager.Instance.GetSprite("arms-up"));
             _enableToggle = menu.AddToggle("FBT Calibration Saver", "Enable/Disable the calibration saver",
                 CalibrationSaverEnabled.SetValue, CalibrationSaverEnabled);
             menu.AddButton("Clear Saved Calibrations", "Clear your saved calibrations from your disk.", () =>
             {
                 _savedCalibrations.Clear();
                 File.Delete("UserData/ReModCE/calibrations.json");
-            });
+            }, ResourceManager.Instance.GetSprite("dust"));
         }
 
         private static void PerformCalibration(ref VRCTrackingSteam __instance, Animator __0, bool __1, bool __2)

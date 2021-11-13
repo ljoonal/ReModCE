@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
 using ReModCE.Core;
 using ReModCE.Loader;
 using ReModCE.Managers;
-using ReModCE.UI;
 using VRC;
 
 namespace ReModCE.Components
@@ -14,7 +12,7 @@ namespace ReModCE.Components
     internal class InfoLogsComponent : ModComponent
     {
         private ConfigValue<bool> JoinLeaveLogsEnabled;
-        private ReQuickToggle _joinLeaveLogsToggle;
+        private ReMenuToggle _joinLeaveLogsToggle;
 
         public InfoLogsComponent()
         {
@@ -26,7 +24,7 @@ namespace ReModCE.Components
         {
             base.OnUiManagerInit(uiManager);
 
-            var menu = uiManager.MainMenu.GetSubMenu("Logging");
+            var menu = uiManager.MainMenu.GetMenuPage("Logging");
             _joinLeaveLogsToggle = menu.AddToggle("Join/Leave Logs",
                 "Enable whether player joins/leaves should be logged in console.", JoinLeaveLogsEnabled.SetValue,
                 JoinLeaveLogsEnabled);

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MelonLoader.ICSharpCode.SharpZipLib.GZip;
+using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
+using ReMod.Core.VRChat;
 using ReModCE.Core;
 using ReModCE.Loader;
 using ReModCE.Managers;
-using ReModCE.UI;
-using ReModCE.VRChat;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.Core;
@@ -24,15 +26,15 @@ namespace ReModCE.Components
 
         private ConfigValue<bool> AvatarHistoryEnabled;
         private ConfigValue<bool> AvatarHistoryExcludeOwn;
-        private ReQuickToggle _enabledToggle;
-        private ReQuickToggle _excludeOwnToggle;
+        private ReMenuToggle _enabledToggle;
+        private ReMenuToggle _excludeOwnToggle;
 
         public AvatarHistoryComponent()
         {
             AvatarHistoryEnabled = new ConfigValue<bool>(nameof(AvatarHistoryEnabled), true);
             AvatarHistoryEnabled.OnValueChanged += () =>
             {
-                _enabledToggle.Toggle(AvatarHistoryEnabled);
+                _enabledToggle?.Toggle(AvatarHistoryEnabled);
                 _avatarList.GameObject.SetActive(AvatarHistoryEnabled);
             };
 
@@ -62,18 +64,12 @@ namespace ReModCE.Components
             }
         }
 
-        public override void OnUiManagerInit(UiManager uiManager)
+        public override void OnUiManagerInitEarly()
         {
-            var menu = uiManager.MainMenu.GetSubMenu("Avatars");
-            _enabledToggle = menu.AddToggle("Avatar History", "Enable/Disable avatar history",
-                AvatarHistoryEnabled.SetValue, AvatarHistoryEnabled);
-            _excludeOwnToggle = menu.AddToggle("Exclude own avatars", "Exclude own avatars for avatar history",
-                AvatarHistoryExcludeOwn.SetValue, AvatarHistoryExcludeOwn);
-
             _avatarList = new ReAvatarList("Recently Used", this, true, false);
 
             var changeButton = GameObject.Find("UserInterface/MenuContent/Screens/Avatar/Change Button");
-            
+
             if (changeButton != null)
             {
                 var button = changeButton.GetComponent<Button>();
@@ -113,6 +109,15 @@ namespace ReModCE.Components
                     }));
                 }));
             }
+        }
+
+        public override void OnUiManagerInit(UiManager uiManager)
+        {
+            var menu = uiManager.MainMenu.GetMenuPage("Avatars");
+            _enabledToggle = menu.AddToggle("Avatar History", "Enable/Disable avatar history",
+                AvatarHistoryEnabled.SetValue, AvatarHistoryEnabled);
+            _excludeOwnToggle = menu.AddToggle("Exclude own avatars", "Exclude own avatars for avatar history",
+                AvatarHistoryExcludeOwn.SetValue, AvatarHistoryExcludeOwn);
         }
 
         public override void OnAvatarIsReady(VRCPlayer vrcPlayer)

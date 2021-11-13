@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using MelonLoader;
+using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
+using ReMod.Core.VRChat;
 using ReModCE.Core;
 using ReModCE.Managers;
-using ReModCE.UI;
-using ReModCE.VRChat;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.UI;
@@ -33,28 +35,28 @@ namespace ReModCE.Components
         private Camera _originalCamera;
 
         private ConfigValue<bool> WireframeEnabled;
-        private ReQuickToggle _wireframeToggle;
+        private ReMenuToggle _wireframeToggle;
 
         private ConfigValue<bool> WireframeIgnoreZ;
-        private ReQuickToggle _wireframeIgnoreZToggle;
+        private ReMenuToggle _wireframeIgnoreZToggle;
 
         private ConfigValue<bool> WireframeIncludePlayers;
-        private ReQuickToggle _includePlayersToggle;
+        private ReMenuToggle _includePlayersToggle;
 
         private ConfigValue<bool> WireframeIncludeSelf;
-        private ReQuickToggle _includeSelfToggle;
+        private ReMenuToggle _includeSelfToggle;
 
         private ConfigValue<bool> WireframeIncludeDefault;
-        private ReQuickToggle _includeWorldToggle;
+        private ReMenuToggle _includeWorldToggle;
 
         private ConfigValue<bool> WireframeIncludePickups;
-        private ReQuickToggle _includePickupsToggle;
+        private ReMenuToggle _includePickupsToggle;
 
         private ConfigValue<float> WireframeRange;
-        private ReQuickButton _rangeButton;
+        private ReMenuButton _rangeButton;
 
         private ConfigValue<bool> WireframeHideOriginalObjects;
-        private ReQuickToggle _hideOriginalObjectsToggle;
+        private ReMenuToggle _hideOriginalObjectsToggle;
 
         public WireframeComponent()
         {
@@ -240,13 +242,16 @@ namespace ReModCE.Components
 
             RiskyFunctionsManager.Instance.OnRiskyFunctionsChanged += allowed =>
             {
-                _wireframeToggle.Interactable = allowed;
+                if (_wireframeToggle != null)
+                {
+                    _wireframeToggle.Interactable = allowed;
+                }
                 if (!allowed)
                     WireframeEnabled.SetValue(false);
             };
         }
 
-        public override void OnUiManagerInit(UiManager uiManager)
+        public override void OnUiManagerInitEarly()
         {
             _wireframeCamera = CreateCamera();
             if (_wireframeCamera == null)
@@ -294,10 +299,13 @@ namespace ReModCE.Components
 
             _wireframeCamera.clearFlags = WireframeIgnoreZ ? CameraClearFlags.Depth : CameraClearFlags.Nothing;
             _wireframeCamera.farClipPlane = WireframeRange;
+        }
 
-            var menu = uiManager.MainMenu.GetSubMenu("Visuals").AddSubMenu("Wireframe", "Access wireframe settings");
+        public override void OnUiManagerInit(UiManager uiManager)
+        {
+            var menu = uiManager.MainMenu.GetMenuPage("Visuals").AddMenuPage("Wireframe", "Access wireframe settings", ResourceManager.Instance.GetSprite("wireframe"));
             _wireframeToggle = menu.AddToggle("Enable", "Highlight objects using wireframe.",
-                WireframeEnabled.SetValue, WireframeEnabled);
+                WireframeEnabled);
 
             _rangeButton = menu.AddButton($"Range: {WireframeRange}",
                 "Set the range on when wireframe starts rendering",
@@ -315,12 +323,12 @@ namespace ReModCE.Components
 
                             WireframeRange.SetValue(range);
                         }, null);
-                });
+                }, ResourceManager.Instance.GetSprite("binoculars"));
 
             _hideOriginalObjectsToggle = menu.AddToggle("Hide Original", "Hide original meshes so only the wireframe shows",
                     WireframeHideOriginalObjects.SetValue, WireframeHideOriginalObjects);
 
-                _wireframeIgnoreZToggle = menu.AddToggle("Ignore Z", "Enable/Disable Ignore Z (Visible through walls)",
+            _wireframeIgnoreZToggle = menu.AddToggle("Ignore Z", "Enable/Disable Ignore Z (Visible through walls)",
                 WireframeIgnoreZ.SetValue, WireframeIgnoreZ);
             _includePlayersToggle = menu.AddToggle("Include Players", "Include players in wireframe ESP",
                 WireframeIncludePlayers.SetValue, WireframeIncludePlayers);

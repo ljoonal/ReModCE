@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ReMod.Core;
+using ReMod.Core.Managers;
+using ReMod.Core.UI;
+using ReMod.Core.VRChat;
 using ReModCE.Core;
 using ReModCE.Managers;
-using ReModCE.UI;
-using ReModCE.VRChat;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC;
@@ -22,9 +19,9 @@ namespace ReModCE.Components
         private ConfigValue<Color> FriendsColor;
         private ConfigValue<Color> OthersColor;
         private ConfigValue<bool> ESPEnabled;
-        private ReQuickToggle _espToggle;
-        private ReQuickButton _friendsColorButton;
-        private ReQuickButton _othersColorButton;
+        private ReMenuToggle _espToggle;
+        private ReMenuButton _friendsColorButton;
+        private ReMenuButton _othersColorButton;
 
         public HighlightsComponent()
         {
@@ -36,24 +33,30 @@ namespace ReModCE.Components
 
             RiskyFunctionsManager.Instance.OnRiskyFunctionsChanged += allowed =>
             {
-                _espToggle.Interactable = allowed;
+                if (_espToggle != null)
+                {
+                    _espToggle.Interactable = allowed;
+                }
                 if (!allowed)
                     ESPEnabled.SetValue(false);
             };
         }
 
-        public override void OnUiManagerInit(UiManager uiManager)
+        public override void OnUiManagerInitEarly()
         {
-            base.OnUiManagerInit(uiManager);
-
             var highlightsFx = HighlightsFX.field_Private_Static_HighlightsFX_0;
 
             _friendsHighlights = highlightsFx.gameObject.AddComponent<HighlightsFXStandalone>();
             _friendsHighlights.highlightColor = FriendsColor;
             _othersHighlights = highlightsFx.gameObject.AddComponent<HighlightsFXStandalone>();
             _othersHighlights.highlightColor = OthersColor;
+        }
 
-            var menu = uiManager.MainMenu.GetSubMenu("Visuals");
+        public override void OnUiManagerInit(UiManager uiManager)
+        {
+            base.OnUiManagerInit(uiManager);
+
+            var menu = uiManager.MainMenu.GetMenuPage("Visuals");
             _espToggle = menu.AddToggle("ESP/Highlights", "Enable ESP (Highlight players through walls)", b =>
             {
                 ESPEnabled.SetValue(b);
@@ -65,17 +68,17 @@ namespace ReModCE.Components
                 () =>
                 {
                     PopupColorInput(_friendsColorButton, "Friends", FriendsColor);
-                });
+                }, ResourceManager.Instance.GetSprite("palette"));
 
             _othersColorButton = menu.AddButton($"<color=#{OthersColor.Value.ToHex()}>Others</color> Color",
                 $"Set <color=#{OthersColor.Value.ToHex()}>other</color> peoples highlight color",
                 () =>
                 {
                     PopupColorInput(_othersColorButton, "Others", OthersColor);
-                });
+                }, ResourceManager.Instance.GetSprite("palette"));
         }
 
-        private void PopupColorInput(ReQuickButton button, string who, ConfigValue<Color> configValue)
+        private void PopupColorInput(ReMenuButton button, string who, ConfigValue<Color> configValue)
         {
             VRCUiPopupManager.prop_VRCUiPopupManager_0.ShowInputPopupWithCancel("Input hex color code",
                 $"#{configValue.Value.ToHex()}", InputField.InputType.Standard, false, "Submit",
