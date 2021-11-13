@@ -6,6 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
+using MelonLoader;
 using VRC.UI.Core;
 using Object = UnityEngine.Object;
 
