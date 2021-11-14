@@ -1,0 +1,13 @@
+{
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2,
+    "editor.useTabStops": false,
+    "[csharp]": {
+        "editor.tabSize": 4,
+    },
+    "markdownlint.config": {
+        "MD024": false
+    },
+    "omnisharp.useEditorFormattingSettings": true
+}
