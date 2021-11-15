@@ -36,7 +36,7 @@ namespace ReModCE
 
         public static void OnApplicationStart()
         {
-            Harmony = MelonHandler.Mods.First(m => m.Info.Name == "ReModCE").HarmonyInstance;
+            Harmony = MelonHandler.Mods.First(m => m.Info.Name == "ReModLJ").HarmonyInstance;
             Directory.CreateDirectory("UserData/ReModCE");
             ReLogger.Msg("Initializing...");
 
