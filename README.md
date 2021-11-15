@@ -7,11 +7,11 @@ This adds linux build support and removes some features which contact non-vrchat
 
 This is essentially a public version of RequiDev's invite-only VRChat mod. It's a cut-down version with no connection to the ReMod server and with it's security measures removed.  
 
-If you want a feature or have a bug report, head over to the issues page and create an issue for it!
+If you want a feature or have a bug report, try the original version.
 
 ## Installation & Usage
 
-Build the required dlls and put them in your Mods directory.  
+Build the dlls and put them in your VRC folder, with the loader going into the Mods folder.  
 
 The loader has been stripped of automated updating features completely.
 No builds will be provided, build from source.
