@@ -3,6 +3,7 @@ using System.Linq;
 using ReMod.Core;
 using ReMod.Core.Managers;
 using ReMod.Core.UI;
+using ReMod.Core.UI.QuickMenu;
 using ReMod.Core.VRChat;
 using ReModCE.Core;
 using ReModCE.Managers;
@@ -85,7 +86,7 @@ namespace ReModCE.Components
 
                         FlySpeed.SetValue(flySpeed);
                     }, null);
-            }, ResourceManager.Instance.GetSprite("speed"));
+            }, ResourceManager.GetSprite("remodce.speed"));
         }
 
         private readonly List<Il2CppSystem.Type> _blacklistedComponents = new List<Il2CppSystem.Type>

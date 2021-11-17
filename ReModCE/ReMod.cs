@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using MelonLoader;
 using ReMod.Core;
@@ -25,7 +26,6 @@ namespace ReModCE
     {
         private static readonly List<ModComponent> Components = new List<ModComponent>();
         private static UiManager _uiManager;
-        private static ResourceManager _resourceManager;
         private static ConfigManager _configManager;
 
         public static bool IsEmmVRCLoaded { get; private set; }
@@ -43,11 +43,25 @@ namespace ReModCE
             IsEmmVRCLoaded = MelonHandler.Mods.Any(m => m.Info.Name == "emmVRCLoader");
             IsRubyLoaded = File.Exists("hid.dll");
 
-            _resourceManager = new ResourceManager(Assembly.GetExecutingAssembly(), "ReModCE.Resources");
-            _configManager = new ConfigManager(nameof(ReModCE));
+            var ourAssembly = Assembly.GetExecutingAssembly();
+            var resources = ourAssembly.GetManifestResourceNames();
+            foreach (var resource in resources)
+            {
+                if (!resource.EndsWith(".png"))
+                    continue;
+
+                var stream = ourAssembly.GetManifestResourceStream(resource);
+
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                var resourceName = Regex.Match(resource, @"([a-zA-Z\d\-_]+)\.png").Groups[1].ToString();
+                ResourceManager.LoadSprite("remodce", resourceName, ms.ToArray());
+            }
             
-            RegisterTypeInIl2Cpp<EnableDisableListener>();
-            RegisterTypeInIl2Cpp<WireframeEnabler>();
+            _configManager = new ConfigManager(nameof(ReModCE));
+
+            EnableDisableListener.RegisterSafe();
+            ClassInjector.RegisterTypeInIl2Cpp<WireframeEnabler>();
 
             SetIsOculus();
 
@@ -56,18 +70,6 @@ namespace ReModCE
             InitializePatches();
             InitializeModComponents();
             ReLogger.Msg("Done!");
-        }
-
-        private static void RegisterTypeInIl2Cpp<T>() where T : class
-        {
-            try
-            {
-                ClassInjector.RegisterTypeInIl2Cpp<T>();
-            }
-            catch (Exception e)
-            {
-                ReLogger.Msg(ConsoleColor.Yellow, $"{typeof(T).Name} has already been registered in Il2Cpp space.");
-            }
         }
 
         private static void SetIsOculus()
@@ -125,14 +127,14 @@ namespace ReModCE
         {
             ReLogger.Msg("Initializing UI...");
 
-            _uiManager = new UiManager("ReMod <color=#00ff00>CE</color>", _resourceManager.GetSprite("remod"));
+            _uiManager = new UiManager("ReMod <color=#00ff00>CE</color>", ResourceManager.GetSprite("remodce.remod"));
 
-            _uiManager.MainMenu.AddMenuPage("Movement", "Access movement related settings", _resourceManager.GetSprite("running"));
-            _uiManager.MainMenu.AddMenuPage("Visuals", "Access anything that will affect your game visually", _resourceManager.GetSprite("eye"));
-            _uiManager.MainMenu.AddMenuPage("Dynamic Bones", "Access your global dynamic bone settings", _resourceManager.GetSprite("bone"));
-            _uiManager.MainMenu.AddMenuPage("Avatars", "Access avatar related settings", _resourceManager.GetSprite("hanger"));
-            _uiManager.MainMenu.AddMenuPage("Logging", "Access logging related settings", _resourceManager.GetSprite("log"));
-            _uiManager.MainMenu.AddMenuPage("Hotkeys", "Access hotkey related settings", _resourceManager.GetSprite("keyboard"));
+            _uiManager.MainMenu.AddMenuPage("Movement", "Access movement related settings", ResourceManager.GetSprite("remodce.running"));
+            _uiManager.MainMenu.AddMenuPage("Visuals", "Access anything that will affect your game visually", ResourceManager.GetSprite("remodce.eye"));
+            _uiManager.MainMenu.AddMenuPage("Dynamic Bones", "Access your global dynamic bone settings", ResourceManager.GetSprite("remodce.bone"));
+            _uiManager.MainMenu.AddMenuPage("Avatars", "Access avatar related settings", ResourceManager.GetSprite("remodce.hanger"));
+            _uiManager.MainMenu.AddMenuPage("Logging", "Access logging related settings", ResourceManager.GetSprite("remodce.log"));
+            _uiManager.MainMenu.AddMenuPage("Hotkeys", "Access hotkey related settings", ResourceManager.GetSprite("remodce.keyboard"));
 
             foreach (var m in Components)
             {
