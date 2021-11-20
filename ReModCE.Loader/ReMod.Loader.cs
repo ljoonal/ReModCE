@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using MelonLoader;
+using UnityEngine;
 using VRC.UI.Core;
 using Object = UnityEngine.Object;
 
@@ -18,7 +19,7 @@ namespace ReModCE.Loader
         public const string Name = "ReModLJ";
         public const string Author = "Requi, FenrixTheFox, LJ";
         public const string Company = null;
-        public const string Version = "1.0.0.1";
+        public const string Version = "1.0.0.2";
         public const string DownloadLink = "";
     }
 
@@ -36,7 +37,7 @@ namespace ReModCE.Loader
         private Action _onPreferencesSaved;
 
         private Action<int, string> _onSceneWasLoaded;
-		private Action<int, string> _onSceneWasInitialized;
+        private Action<int, string> _onSceneWasInitialized;
         public override void OnApplicationStart()
         {
             var category = MelonPreferences.CreateCategory("ReModCE");
@@ -203,7 +204,7 @@ namespace ReModCE.Loader
             OnUiManagerInitEarly();
 
             while (UIManager.field_Private_Static_UIManager_0 == null) yield return null;
-            while (Object.FindObjectOfType<VRC.UI.Elements.QuickMenu>() == null) yield return null;
+            while (GameObject.Find("UserInterface").GetComponentInChildren<VRC.UI.Elements.QuickMenu>(true) == null) yield return null;
 
             OnUiManagerInit();
         }
