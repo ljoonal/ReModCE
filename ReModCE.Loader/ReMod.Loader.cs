@@ -10,14 +10,13 @@ using System.Text;
 using MelonLoader;
 using UnityEngine;
 using VRC.UI.Core;
-using Object = UnityEngine.Object;
 
 namespace ReModCE.Loader
 {
     public static class BuildInfo
     {
         public const string Name = "ReModLJ";
-        public const string Author = "Requi, FenrixTheFox, LJ";
+        public const string Author = "Requi, FenrixTheFox, Xaiver, Potato, LJ";
         public const string Company = null;
         public const string Version = "1.0.0.2";
         public const string DownloadLink = "";

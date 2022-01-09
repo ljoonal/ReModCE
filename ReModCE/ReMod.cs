@@ -9,16 +9,17 @@ using HarmonyLib;
 using MelonLoader;
 using ReMod.Core;
 using ReMod.Core.Managers;
+using ReMod.Core.UI.Wings;
 using ReMod.Core.Unity;
 using ReModCE.Components;
-using ReModCE.Core;
 using ReModCE.Loader;
-using ReModCE.Managers;
 using UnhollowerRuntimeLib;
 using UnhollowerRuntimeLib.XrefScans;
 using VRC;
+using VRC.Core;
 using VRC.DataModel;
 using VRC.UI.Elements.Menus;
+using ConfigManager = ReMod.Core.Managers.ConfigManager;
 
 namespace ReModCE
 {
@@ -28,6 +29,7 @@ namespace ReModCE
         private static UiManager _uiManager;
         private static ConfigManager _configManager;
 
+        public static ReMirroredWingMenu WingMenu;
         public static bool IsEmmVRCLoaded { get; private set; }
         public static bool IsRubyLoaded { get; private set; }
         public static bool IsOculus { get; private set; }
@@ -95,7 +97,8 @@ namespace ReModCE
         private static void InitializePatches()
         {
             Harmony.Patch(typeof(VRCPlayer).GetMethod(nameof(VRCPlayer.Awake)), GetLocalPatch(nameof(VRCPlayerAwakePatch)));
-
+            Harmony.Patch(typeof(RoomManager).GetMethod(nameof(RoomManager.Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0)), postfix: GetLocalPatch(nameof(EnterWorldPatch)));
+            
             foreach (var method in typeof(SelectedUserMenuQM).GetMethods())
             {
                 if (!method.Name.StartsWith("Method_Private_Void_IUser_PDM_"))
@@ -128,11 +131,21 @@ namespace ReModCE
             ReLogger.Msg("Initializing UI...");
 
             _uiManager = new UiManager("ReMod <color=#00ff00>CE</color>", ResourceManager.GetSprite("remodce.remod"));
-
+            WingMenu = ReMirroredWingMenu.Create("ReModCE", "Open the RemodCE menu", ResourceManager.GetSprite("remodce.remod"));
+            
             _uiManager.MainMenu.AddMenuPage("Movement", "Access movement related settings", ResourceManager.GetSprite("remodce.running"));
-            _uiManager.MainMenu.AddMenuPage("Visuals", "Access anything that will affect your game visually", ResourceManager.GetSprite("remodce.eye"));
+            
+            var visualPage = _uiManager.MainMenu.AddCategoryPage("Visuals", "Access anything that will affect your game visually", ResourceManager.GetSprite("remodce.eye"));
+            visualPage.AddCategory("ESP/Highlights");
+            visualPage.AddCategory("Wireframe");
+            
             _uiManager.MainMenu.AddMenuPage("Dynamic Bones", "Access your global dynamic bone settings", ResourceManager.GetSprite("remodce.bone"));
             _uiManager.MainMenu.AddMenuPage("Avatars", "Access avatar related settings", ResourceManager.GetSprite("remodce.hanger"));
+            
+            var utilityPage = _uiManager.MainMenu.AddCategoryPage("Utility", "Access miscellaneous settings", ResourceManager.GetSprite("remodce.tools"));
+            utilityPage.AddCategory("Quality of Life");
+            utilityPage.AddCategory("VRChat News");
+            
             _uiManager.MainMenu.AddMenuPage("Logging", "Access logging related settings", ResourceManager.GetSprite("remodce.log"));
             _uiManager.MainMenu.AddMenuPage("Hotkeys", "Access hotkey related settings", ResourceManager.GetSprite("remodce.keyboard"));
 
@@ -323,6 +336,16 @@ namespace ReModCE
             ReLogger.Msg(ConsoleColor.Cyan, $"Created {Components.Count} mod components.");
         }
 
+        private static void EnterWorldPatch(ApiWorld __0, ApiWorldInstance __1)
+        {
+            if (__0 == null || __1 == null)
+                return;
+
+            foreach (var m in Components)
+            {
+                m.OnEnterWorld(__0, __1);
+            }
+        }
 
         private static void VRCPlayerAwakePatch(VRCPlayer __instance)
         {
