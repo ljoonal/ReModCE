@@ -33,6 +33,7 @@ namespace ReModCE
         public static bool IsEmmVRCLoaded { get; private set; }
         public static bool IsRubyLoaded { get; private set; }
         public static bool IsOculus { get; private set; }
+        public static bool IsComponentToggleLoaded { get; private set; }
 
         public static HarmonyLib.Harmony Harmony { get; private set; }
 
@@ -44,6 +45,7 @@ namespace ReModCE
 
             IsEmmVRCLoaded = MelonHandler.Mods.Any(m => m.Info.Name == "emmVRCLoader");
             IsRubyLoaded = File.Exists("hid.dll");
+            IsComponentToggleLoaded = MelonHandler.Mods.Any(m => m.Info.Name == "ComponentToggle");
 
             var ourAssembly = Assembly.GetExecutingAssembly();
             var resources = ourAssembly.GetManifestResourceNames();
@@ -148,6 +150,10 @@ namespace ReModCE
             
             _uiManager.MainMenu.AddMenuPage("Logging", "Access logging related settings", ResourceManager.GetSprite("remodce.log"));
             _uiManager.MainMenu.AddMenuPage("Hotkeys", "Access hotkey related settings", ResourceManager.GetSprite("remodce.keyboard"));
+
+            var remodMenu = _uiManager.MainMenu.AddMenuPage("ReMod CE", "Access ReMod CE related options", ResourceManager.GetSprite("remodce.remod"));
+            remodMenu.AddButton("Discord", "Join my Discord if you need help or if you just want to chat!",
+                () => { Process.Start("https://discord.gg/KdTSGU4jt3"); }, ResourceManager.GetSprite("remodce.discord"));
 
             foreach (var m in Components)
             {

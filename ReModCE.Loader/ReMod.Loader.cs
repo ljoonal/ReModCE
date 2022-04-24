@@ -18,7 +18,7 @@ namespace ReModCE.Loader
         public const string Name = "ReModLJ";
         public const string Author = "Requi, FenrixTheFox, Xaiver, Potato, Psychloor, LJ";
         public const string Company = null;
-        public const string Version = "1.0.0.2";
+        public const string Version = "1.0.0.4";
         public const string DownloadLink = "";
     }
 
