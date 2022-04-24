@@ -14,6 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="HarmonyLib">
+      <Private>false</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdparty\ml\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>false</Private>
       <SpecificVersion>False</SpecificVersion>
