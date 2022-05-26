@@ -1,16 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-    <BuildProjectReferences>false</BuildProjectReferences>
-    <Deterministic>true</Deterministic>
-    <CopyLocal>false</CopyLocal>
+    <ProjectGuid>{4EA50331-5D4E-47D3-BDA5-260600CFF84C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ReModCE</RootNamespace>
+    <AssemblyName>ReModCE</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
-    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
