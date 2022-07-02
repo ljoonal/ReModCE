@@ -49,3 +49,7 @@ The loader is still required though, since this fork aims to stay close to the u
 ## Notable Mentions
 
 [emmVRC](https://github.com/emmVRC) - They inspired me to create this project in the first place. This would not exist without them  
+
+## JetBrains
+
+[![JetBrains Logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://jb.gg/OpenSourceSupport)
